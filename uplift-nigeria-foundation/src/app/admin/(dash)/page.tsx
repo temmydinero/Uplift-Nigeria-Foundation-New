@@ -1,0 +1,6 @@
+import Link from "next/link";import { db,safe } from "@/lib/db";import { requireAuth } from "@/lib/authz";
+export default async function Home({searchParams}:{searchParams:{denied?:string}}){const u=await requireAuth();const adm=u.role==="ADMIN";
+ const[a,p,v,pr,m]=await Promise.all([safe(()=>db.article.count(),0),safe(()=>db.program.count(),0),adm?safe(()=>db.volunteer.count({where:{status:"NEW"}}),0):0,adm?safe(()=>db.partnershipRequest.count({where:{status:"NEW"}}),0):0,adm?safe(()=>db.contactMessage.count({where:{status:"UNREAD"}}),0):0]);
+ const c:[string,number,string,boolean][]=[["Articles",a,"/admin/articles",true],["Programs",p,"/admin/programs",true],["New volunteers",v,"/admin/inbox/volunteers",adm],["New partnership requests",pr,"/admin/inbox/partnerships",adm],["Unread messages",m,"/admin/inbox/messages",adm]];
+ return <><h1 className="!text-3xl">Overview</h1>{searchParams.denied&&<p role="alert" className="mt-3 rounded-xl bg-red-100 p-3 text-red-900">You do not have permission to view that page.</p>}
+ <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{c.filter(x=>x[3]).map(([l,n,h])=><Link key={l} href={h} className="card"><b className="font-serif text-3xl">{n}</b><p>{l}</p></Link>)}</div></>}

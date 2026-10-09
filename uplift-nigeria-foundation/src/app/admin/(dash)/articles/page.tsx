@@ -1,0 +1,4 @@
+import Link from "next/link";import { db,safe } from "@/lib/db";
+export default async function List(){const a=await safe(()=>db.article.findMany({orderBy:{createdAt:"desc"},take:200,include:{category:true}}),[]);
+ return <><div className="flex items-center justify-between"><h1 className="!text-3xl">News &amp; Activities</h1><Link href="/admin/articles/new" className="btn">New article</Link></div>
+ {a.length===0?<p className="muted mt-6">No articles yet.</p>:<ul className="mt-6 grid gap-3">{a.map(x=><li key={x.id} className="card flex items-center justify-between !p-4"><span><b>{x.title}</b><br/><small className="muted">{x.category?.name||"Uncategorised"} · {x.published?"Published":"Draft"}</small></span><Link href={"/admin/articles/"+x.id} className="font-semibold text-brand">Edit</Link></li>)}</ul>}</>}

@@ -1,0 +1,4 @@
+import Header from "@/components/Header";import Footer from "@/components/Footer";import { getSettings } from "@/lib/settings";
+export default async function L({children}:{children:React.ReactNode}){const s=await getSettings();const base=process.env.NEXT_PUBLIC_SITE_URL||"http://localhost:3000";
+ const ld={"@context":"https://schema.org","@type":"NGO",name:s.foundation_name,url:base,logo:base+"/logo-mark.svg",slogan:s.tagline,email:s.email||undefined,telephone:s.phone||undefined,address:s.address?{"@type":"PostalAddress",streetAddress:s.address,addressCountry:"NG"}:undefined,sameAs:[s.instagram,s.facebook,s.x,s.linkedin,s.youtube,s.tiktok].filter(Boolean)};
+ return <><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(ld).replace(/</g,"\\u003c")}}/><a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-3">Skip to content</a><Header/><main id="main">{children}</main><Footer/></>}

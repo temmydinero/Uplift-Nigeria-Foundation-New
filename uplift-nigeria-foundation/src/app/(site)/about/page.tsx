@@ -1,0 +1,7 @@
+import { meta } from "@/lib/meta";import { VALUES,APPROACH } from "@/lib/content";
+export const metadata=meta("About Us","Uplift Nigeria Foundation is a Nigerian charitable foundation committed to improving lives and communities.","/about");
+export default function About(){return <section className="sec"><div className="wrap"><p className="tag">About us</p><h1 className="mt-2">Who We Are</h1>
+<p className="muted mt-4 max-w-2xl">Uplift Nigeria Foundation is a Nigerian charitable foundation committed to improving lives and communities.</p>
+<div className="mt-10 grid gap-5 md:grid-cols-2"><div className="card"><h2 className="text-2xl">Our Mission</h2><p className="muted mt-2">To empower individuals and communities through compassion, opportunity and community development, creating sustainable positive change across Nigeria.</p></div><div className="card"><h2 className="text-2xl">Our Vision</h2><p className="muted mt-2">A Nigeria where individuals and communities have the opportunity, resources and support needed to thrive.</p></div></div>
+<h2 className="mb-6 mt-16">Our Values</h2><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{VALUES.map(([t,d])=><div key={t} className="card"><h3>{t}</h3><p className="muted mt-1">{d}</p></div>)}</div>
+<h2 className="mb-6 mt-16">Our Approach</h2><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{APPROACH.map(([t,d],i)=><div key={t} className="card"><span className="tag">Step {i+1}</span><h3>{t}</h3><p className="muted mt-1">{d}</p></div>)}</div></div></section>}

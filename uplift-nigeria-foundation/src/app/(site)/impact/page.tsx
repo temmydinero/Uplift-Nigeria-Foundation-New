@@ -1,0 +1,9 @@
+import MediaImage from "@/components/MediaImage";import { meta } from "@/lib/meta";import { db,safe } from "@/lib/db";
+export const metadata=meta("Our Impact","Verified results and stories from Uplift Nigeria Foundation's community work.","/impact");export const revalidate=60;
+export default async function Impact(){
+ const stats=await safe(()=>db.impactStat.findMany({where:{verified:true,published:true},orderBy:{sortOrder:"asc"}}),[]);const stories=await safe(()=>db.impactStory.findMany({where:{published:true},orderBy:{createdAt:"desc"},include:{image:true}}),[]);
+ return <section className="sec"><div className="wrap"><p className="tag">Our impact</p><h1 className="mt-2">Impact We Can Verify</h1><p className="muted mt-3 max-w-2xl">We publish only verified results.</p>
+ <div className="my-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{stats.map(s=><div key={s.id} className="card"><b className="font-serif text-4xl text-brand">{s.value}{s.suffix}</b><p>{s.label}</p></div>)}</div>
+ {stats.length===0&&<p className="muted">We publish figures only once they have been verified. In the meantime, read about our work below.</p>}
+ <h2 className="mb-6 mt-12">Impact Timeline</h2>
+ {stories.length===0?<p className="muted">No impact stories published yet.</p>:<ol className="ml-2 border-l-4 border-accent pl-6">{stories.map(t=><li key={t.id} className="card mb-5">{t.image&&<MediaImage src={t.image.url} alt={t.image.alt} className="mb-3 aspect-video w-full rounded-xl object-cover"/>}<dl className="grid gap-1 sm:grid-cols-[110px_1fr]"><dt className="font-semibold">Initiative</dt><dd>{t.initiative}</dd><dt className="font-semibold">Community</dt><dd>{t.community}</dd><dt className="font-semibold">What we did</dt><dd>{t.action}</dd><dt className="font-semibold">Result</dt><dd>{t.result}</dd></dl></li>)}</ol>}</div></section>}

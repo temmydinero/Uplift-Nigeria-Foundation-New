@@ -1,0 +1,2 @@
+import { meta } from "@/lib/meta";export const metadata=meta("Terms of Use","Terms of use for the Uplift Nigeria Foundation website.","/terms");
+export default function T(){return <section className="sec"><div className="wrap max-w-3xl"><h1>Terms of Use</h1><p className="my-4">This website provides information about Uplift Nigeria Foundation and its work. Content is provided in good faith and may be updated at any time. By using the site you agree not to misuse its forms or attempt unauthorized access.</p></div></section>}
