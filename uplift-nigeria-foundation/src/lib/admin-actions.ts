@@ -34,14 +34,14 @@ export async function updateAlt(fd:FormData){await requireEditor();const alt=Str
 export async function deleteMedia(fd:FormData){await requireEditor();const m=(await db.media.delete({where:{id:String(fd.get("id"))}})) as any;await removeStored(m.storageKey);revalidatePath("/","layout");redirect("/admin/media")}
 // ---- Impact
 export async function addStat(fd:FormData){await requireEditor();const l=String(fd.get("label")||"").trim().slice(0,80);if(l.length<2)redirect("/admin/impact?error=1");
- await db.impactStat.create({data:{label:l,value:0,verified:false,published:false,sortOrder:99}});redirect("/admin/impact?saved=1")}
+ await db.impactStat.create({data:{label:l,value:0,verified:false,published:false,sortOrder:99} as any});redirect("/admin/impact?saved=1")}
 export async function saveStats(fd:FormData){await requireEditor();
- for(const id of fd.getAll("id").map(String))await db.impactStat.update({where:{id},data:{label:String(fd.get("label_"+id)).slice(0,80),value:Math.max(0,parseInt(String(fd.get("value_"+id)))||0),sortOrder:Math.max(0,parseInt(String(fd.get("order_"+id)))||0),verified:fd.get("verified_"+id)==="on",published:fd.get("published_"+id)==="on"}});
+ for(const id of fd.getAll("id").map(String))await db.impactStat.update({where:{id},data:{label:String(fd.get("label_"+id)).slice(0,80),value:Math.max(0,parseInt(String(fd.get("value_"+id)))||0),sortOrder:Math.max(0,parseInt(String(fd.get("order_"+id)))||0),verified:fd.get("verified_"+id)==="on",published:fd.get("published_"+id)==="on"} as any});
  revalidatePath("/impact");revalidatePath("/");redirect("/admin/impact?saved=1")}
 export async function deleteStat(fd:FormData){await requireEditor();await db.impactStat.delete({where:{id:String(fd.get("id"))}});revalidatePath("/impact");redirect("/admin/impact")}
 const S=z.object({initiative:z.string().trim().min(2).max(160),community:z.string().trim().min(2).max(160),action:z.string().trim().min(2).max(3000),result:z.string().trim().min(2).max(3000),imageId:opt(40),occurredAt:opt(20)});
 export async function addStory(fd:FormData){await requireEditor();const r=S.safeParse(Object.fromEntries(fd));if(!r.success)redirect("/admin/impact?error=1");const p=r.data;const d=p.occurredAt?new Date(p.occurredAt):null;
- await db.impactStory.create({data:{initiative:p.initiative,community:p.community,action:p.action,result:p.result,published:fd.get("published")==="on",imageId:p.imageId??null,occurredAt:d&&!isNaN(+d)?d:null}});revalidatePath("/impact");redirect("/admin/impact?saved=1")}
+ await db.impactStory.create({data:{initiative:p.initiative,community:p.community,action:p.action,result:p.result,published:fd.get("published")==="on",imageId:p.imageId??null,occurredAt:d&&!isNaN(+d)?d:null} as any});revalidatePath("/impact");redirect("/admin/impact?saved=1")}
 export async function deleteStory(fd:FormData){await requireEditor();await db.impactStory.delete({where:{id:String(fd.get("id"))}});revalidatePath("/impact");redirect("/admin/impact")}
 // ---- Inbox + settings (ADMIN only)
 export async function setStatus(fd:FormData){await requireAdmin();const k=KINDS[String(fd.get("kind"))];const st=String(fd.get("status"));if(!k||!k.statuses.includes(st))return;
