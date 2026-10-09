@@ -12,7 +12,7 @@ export const revalidate=60;
 export default async function Home(){
  const s=await getSettings();
  const stats=await safe(()=>db.impactStat.findMany({orderBy:{sortOrder:"asc"}}),[]);
- const news=await safe(()=>db.article.findMany({where:{published:true},orderBy:{createdAt:"desc"},take:3,include:{category:true,image:true}}),[]);
+ const news=await safe(()=>db.article.findMany({where:{published:true},orderBy:{createdAt:"desc"},take:3}),[]);
 
  return <>
  <section className="dark-sec relative isolate overflow-hidden text-white"><Photo name="hero" alt="" priority className="absolute inset-0 -z-20 h-full w-full"/><div className="absolute inset-0 -z-10 bg-[#0b2e22]/75"/>
@@ -27,7 +27,7 @@ export default async function Home(){
   {stats.length?<dl className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">{stats.map(x=><div key={x.id}><dd className="font-serif text-5xl">{x.value}{x.suffix}</dd><dt className="text-white/80">{x.label}</dt></div>)}</dl>:<p className="max-w-xl text-white/85">We share only verified results. Follow our activities below as we document our work with the communities we serve.</p>}
   <Link href="/impact" className="btn mt-8">See our impact</Link></div></section>
  <section className="sec"><div className="wrap"><p className="tag">Latest activities</p><h2 className="mb-8 mt-2">News &amp; Updates</h2>
-  {news.length===0?<p className="muted">New activities and announcements will be shared here.</p>:<div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{news.map(x=><article key={x.id} className="card">{x.image&&<MediaImage src={x.image.url} alt={x.image.alt} className="mb-3 aspect-video w-full rounded-xl object-cover"/>}<span className="text-xs font-semibold text-brand">{x.category?.name||"News"}</span><h3 className="mt-1"><Link href={"/news/"+x.slug}>{x.title}</Link></h3><p className="muted mt-2">{x.excerpt}</p></article>)}</div>}
+  {news.length===0?<p className="muted">New activities and announcements will be shared here.</p>:<div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{news.map(x=><article key={x.id} className="card"><span className="text-xs font-semibold text-brand">News</span><h3 className="mt-1"><Link href={"/news/"+x.slug}>{x.title}</Link></h3><p className="muted mt-2">{x.excerpt}</p></article>)}</div>}
   <Link href="/news" className="mt-6 inline-block font-semibold text-brand">All news →</Link></div></section>
  <section className="sec bg-brand/5"><div className="wrap"><p className="tag">Get involved</p><h2 className="mb-8 mt-2">Be Part of the Work</h2><div className="grid gap-5 md:grid-cols-2">
   <div className="card"><h3>Volunteer</h3><p className="muted my-2">Share your time and skills with community initiatives.</p><Link href="/involved#volunteer" className="font-semibold text-brand">Volunteer with us →</Link></div>
