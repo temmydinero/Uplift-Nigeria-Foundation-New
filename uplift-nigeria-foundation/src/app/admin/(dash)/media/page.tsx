@@ -1,9 +1,26 @@
-import { db,safe } from "@/lib/db";import { uploadMedia,updateAlt,deleteMedia } from "@/lib/admin-actions";import { storageReady } from "@/lib/storage";import ConfirmButton from "@/components/ConfirmButton";
+import { db,safe } from "@/lib/db";
+import { uploadMedia,updateAlt,deleteMedia } from "@/lib/admin-actions";
+import { storageReady } from "@/lib/storage";
+import ConfirmButton from "@/components/ConfirmButton";
+
 const E:Record<string,string>={file:"Choose an image file.",alt:"Add descriptive alt text (3–200 characters).",storage:"Cloud storage is not configured (see README).",size:"Image is too large (max 5 MB).",type:"Only genuine JPG, PNG or WebP images are allowed.",failed:"Upload failed. Please try again."};
-export default async function Media({searchParams}:{searchParams:{error?:string;ok?:string}}){const m=await safe(()=>db.media.findMany({orderBy:{createdAt:"desc"},take:200}),[]);
- return <><h1 className="!text-3xl">Media library</h1>{searchParams.error&&<p role="alert" className="mt-3 rounded-xl bg-red-100 p-3 text-red-900">{E[searchParams.error]||E.failed}</p>}{searchParams.ok&&<p role="status" className="mt-3 rounded-xl bg-brand/10 p-3">Done.</p>}
+
+export default async function Media({searchParams}:{searchParams:{error?:string;ok?:string}}){
+ const m=await safe(()=>db.media.findMany({orderBy:{createdAt:"desc"},take:200}),[]);
+
+ return <>
+ <h1 className="!text-3xl">Media library</h1>
+ {searchParams.error&&<p role="alert" className="mt-3 rounded-xl bg-red-100 p-3 text-red-900">{E[searchParams.error]||E.failed}</p>}
+ {searchParams.ok&&<p role="status" className="mt-3 rounded-xl bg-brand/10 p-3">Done.</p>}
  {!storageReady()&&<p className="mt-3 rounded-xl bg-amber-100 p-3 text-sm">Storage variables are not set, so uploads are disabled.</p>}
- <form action={uploadMedia} className="card mt-6 grid max-w-xl gap-3"><label className="lbl">Image (JPG, PNG, WebP, max 5 MB)<input name="file" type="file" accept="image/jpeg,image/png,image/webp" required className="input"/></label><label className="lbl">Alt text (describe the image)<input name="alt" required minLength={3} maxLength={200} className="input"/></label><button className="btn">Upload</button></form>
- {m.length===0?<p className="muted mt-6">No images yet.</p>:<ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{m.map(x=><li key={x.id} className="card !p-3"><img src={x.url} alt={x.alt} loading="lazy" className="aspect-video w-full rounded-xl object-cover"/>
- <form action={updateAlt} className="mt-2 flex gap-2"><input type="hidden" name="id" value={x.id}/><input name="alt" defaultValue={x.alt} aria-label="Alt text" className="input !py-2"/><button className="btn !px-4 !py-2">Save</button></form>
- <form action={deleteMedia} className="mt-2"><input type="hidden" name="id" value={x.id}/><ConfirmButton label="Delete image" message="Delete this image? Content using it will show no image."/></form></li>)}</ul>}</>}
+ <form action={uploadMedia} className="card mt-6 grid max-w-xl gap-3">
+  <label className="lbl">Image (JPG, PNG, WebP, max 5 MB)<input name="file" type="file" accept="image/jpeg,image/png,image/webp" required className="input"/></label>
+  <label className="lbl">Alt text (describe the image)<input name="alt" required minLength={3} maxLength={200} className="input"/></label>
+  <button className="btn">Upload</button>
+ </form>
+ {m.length===0?<p className="muted mt-6">No images yet.</p>:<ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{m.map((x: any)=><li key={x.id} className="card !p-3">
+ <img src={x.url} alt={x.alt || ""} loading="lazy" className="aspect-video w-full rounded-xl object-cover"/>
+ <form action={updateAlt} className="mt-2 flex gap-2"><input type="hidden" name="id" value={x.id}/><input name="alt" defaultValue={x.alt || ""} aria-label="Alt text" className="input !py-2"/><button className="btn !px-4 !py-2">Save</button></form>
+ <form action={deleteMedia} className="mt-2"><input type="hidden" name="id" value={x.id}/><ConfirmButton label="Delete image" message="Delete this image? Content using it will show no image."/></form></li>)}</ul>}
+ </>
+}
