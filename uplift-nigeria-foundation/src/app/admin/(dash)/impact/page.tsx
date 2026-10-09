@@ -1,9 +1,45 @@
-import { db,safe } from "@/lib/db";import { saveStats,addStat,deleteStat,addStory,deleteStory } from "@/lib/admin-actions";import MediaSelect from "@/components/MediaSelect";import ConfirmButton from "@/components/ConfirmButton";
-export default async function Impact({searchParams}:{searchParams:{saved?:string;error?:string}}){const st=await safe(()=>db.impactStat.findMany({orderBy:{sortOrder:"asc"}}),[]);const sy=await safe(()=>db.impactStory.findMany({orderBy:{createdAt:"desc"}}),[]);
- return <><h1 className="!text-3xl">Impact</h1>{searchParams.saved&&<p role="status" className="mt-3 rounded-xl bg-brand/10 p-3">Saved.</p>}{searchParams.error&&<p role="alert" className="mt-3 rounded-xl bg-red-100 p-3 text-red-900">Please check the fields.</p>}
- <h2 className="mt-8 !text-xl">Statistics</h2><p className="muted text-sm">A number appears publicly only when it is both <b>verified</b> and <b>published</b>.</p>
- <form action={saveStats} className="card mt-3 grid max-w-2xl gap-3">{st.map(s=><div key={s.id} className="grid grid-cols-2 items-center gap-2 sm:grid-cols-[1fr_90px_70px_auto_auto]"><input type="hidden" name="id" value={s.id}/><input name={"label_"+s.id} defaultValue={s.label} aria-label="Label" className="input col-span-2 sm:col-span-1"/><input name={"value_"+s.id} type="number" min={0} defaultValue={s.value} aria-label="Value" className="input"/><input name={"order_"+s.id} type="number" min={0} defaultValue={s.sortOrder} aria-label="Order" className="input"/><label className="text-xs"><input type="checkbox" name={"verified_"+s.id} defaultChecked={s.verified}/> verified</label><label className="text-xs"><input type="checkbox" name={"published_"+s.id} defaultChecked={s.published}/> published</label></div>)}{st.length>0&&<button className="btn">Save statistics</button>}</form>
- <form action={addStat} className="mt-3 flex max-w-2xl gap-2"><input name="label" placeholder="New statistic label" aria-label="New statistic label" className="input"/><button className="btn btn-o">Add</button></form>
- {st.map(s=><form key={s.id} action={deleteStat} className="mt-1 inline-block pr-4 text-xs"><input type="hidden" name="id" value={s.id}/><ConfirmButton label={"Delete “"+s.label+"”"} message="Delete this statistic?"/></form>)}
- <h2 className="mt-10 !text-xl">Add impact story</h2><form action={addStory} className="card mt-3 grid max-w-xl gap-3"><label className="lbl">Initiative<input name="initiative" required className="input"/></label><label className="lbl">Community<input name="community" required className="input"/></label><label className="lbl">What we did<textarea name="action" required rows={3} className="input"/></label><label className="lbl">Result (verified)<textarea name="result" required rows={3} className="input"/></label><label className="lbl">Date<input name="occurredAt" type="date" className="input"/></label><MediaSelect/><label className="flex gap-2"><input type="checkbox" name="published"/> Published</label><button className="btn">Add story</button></form>
- <ul className="mt-6 grid max-w-xl gap-2">{sy.map(s=><li key={s.id} className="card flex justify-between !p-3"><span>{s.initiative} · {s.published?"Published":"Draft"}</span><form action={deleteStory}><input type="hidden" name="id" value={s.id}/><ConfirmButton label="Delete" message="Delete this story?"/></form></li>)}</ul></>}
+import { db } from "@/lib/db";
+import { saveStats, addStat, deleteStat } from "@/lib/admin-actions";
+import ConfirmButton from "@/components/ConfirmButton";
+
+export default async function AdminImpact({ searchParams }: { searchParams: { saved?: string; error?: string } }) {
+  const stats = await db.impactStat.findMany({ orderBy: { sortOrder: "asc" } });
+
+  return (
+    <>
+      <h1 className="!text-3xl">Manage Impact Statistics</h1>
+      {searchParams.saved && <p role="status" className="mt-3 rounded-xl bg-green-100 p-3 text-green-900">Saved.</p>}
+      {searchParams.error && <p role="alert" className="mt-3 rounded-xl bg-red-100 p-3 text-red-900">Please check the fields and try again.</p>}
+
+      <h2 className="mt-8 !text-xl">Statistics</h2>
+      <p className="muted text-sm">A number appearing on the homepage and impact page.</p>
+
+      <form action={saveStats} className="card mt-3 grid max-w-2xl gap-3">
+        {stats.map((s: any) => (
+          <div key={s.id} className="grid items-center gap-2 sm:grid-cols-[1fr_90px_70px_auto]">
+            <input type="hidden" name="id" value={s.id} />
+            <input name="label" defaultValue={s.label} className="input" placeholder="Label" />
+            <input name="value" defaultValue={s.value} className="input" placeholder="Value" />
+            <input name="sortOrder" type="number" defaultValue={s.sortOrder} className="input" placeholder="Order" />
+          </div>
+        ))}
+        <button className="btn mt-2 w-max">Save All Statistics</button>
+      </form>
+
+      <h2 className="mt-10 !text-xl">Add New Statistic</h2>
+      <form action={addStat} className="card mt-3 flex max-w-2xl gap-2">
+        <input name="label" placeholder="New statistic label" className="input" />
+        <input name="value" placeholder="Value (e.g. 5,000+)" className="input" />
+        <input name="sortOrder" type="number" defaultValue={stats.length + 1} className="input w-24" />
+        <button className="btn">Add</button>
+      </form>
+
+      {stats.map((s: any) => (
+        <form key={s.id} action={deleteStat} className="mt-2">
+          <input type="hidden" name="id" value={s.id} />
+          <ConfirmButton label={`Delete "${s.label}"`} message="Delete this statistic?" />
+        </form>
+      ))}
+    </>
+  );
+}
