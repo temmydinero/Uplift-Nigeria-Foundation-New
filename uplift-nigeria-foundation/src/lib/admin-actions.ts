@@ -11,7 +11,7 @@ export async function saveArticle(fd:FormData){const u=await requireEditor();con
  const published=fd.get("published")==="on";const old=id!=="new"?await db.article.findUnique({where:{id}}):null;
  const cat=p.category?await db.articleCategory.upsert({where:{name:p.category},update:{},create:{name:p.category,slug:slugify(p.category)}}):null;
  const data={title:p.title,excerpt:p.excerpt,body:p.body,published,categoryId:cat?.id??null,imageId:p.imageId??null,seoTitle:p.seoTitle??null,seoDescription:p.seoDescription??null};
- if(old)await db.article.update({where:{id},data});else await db.article.create({data:{...data,slug:await uniqueSlug("article",p.title),authorId:u.id}});
+ if(old)await db.article.update({where:{id},data:data as any});else await db.article.create({data:{...data,slug:await uniqueSlug("article",p.title),authorId:u.id} as any});
  revalidatePath("/news");revalidatePath("/");redirect("/admin/articles")}
 export async function deleteArticle(fd:FormData){await requireEditor();await db.article.delete({where:{id:String(fd.get("id"))}});revalidatePath("/news");redirect("/admin/articles")}
 // ---- Programs
@@ -20,7 +20,7 @@ export async function saveProgram(fd:FormData){await requireEditor();const id=St
  const r=P.safeParse(Object.fromEntries(fd));if(!r.success)redirect("/admin/programs/"+id+"?error=1");const p=r.data;
  const cat=p.category?await db.programCategory.upsert({where:{name:p.category},update:{},create:{name:p.category,slug:slugify(p.category)}}):null;
  const data={title:p.title,summary:p.summary,body:p.body??null,sortOrder:p.sortOrder,published:fd.get("published")==="on",categoryId:cat?.id??null,imageId:p.imageId??null};
- if(id!=="new")await db.program.update({where:{id},data});else await db.program.create({data:{...data,slug:await uniqueSlug("program",p.title)}});
+ if(id!=="new")await db.program.update({where:{id},data:data as any});else await db.program.create({data:{...data,slug:await uniqueSlug("program",p.title)} as any});
  revalidatePath("/programs");revalidatePath("/");redirect("/admin/programs")}
 export async function deleteProgram(fd:FormData){await requireEditor();await db.program.delete({where:{id:String(fd.get("id"))}});revalidatePath("/programs");redirect("/admin/programs")}
 // ---- Media
