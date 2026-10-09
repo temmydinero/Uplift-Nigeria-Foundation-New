@@ -1,9 +1,19 @@
-import MediaImage from "@/components/MediaImage";import Link from "next/link";import Programs from "@/components/Programs";import Photo from "@/components/Photo";import { getSettings } from "@/lib/settings";import { db,safe } from "@/lib/db";import { APPROACH } from "@/lib/content";
+import MediaImage from "@/components/MediaImage";
+import Link from "next/link";
+import Programs from "@/components/Programs";
+import Photo from "@/components/Photo";
+import { getSettings } from "@/lib/settings";
+import { db,safe } from "@/lib/db";
+import { APPROACH } from "@/lib/content";
+
 export const metadata={title:{absolute:"Uplift Nigeria Foundation | Uplifting Lives. Strengthening Communities."},description:"Uplift Nigeria Foundation is a Nigerian charitable foundation working to improve lives and strengthen communities.",alternates:{canonical:"/"},openGraph:{title:"Uplift Nigeria Foundation",description:"Uplifting Lives. Strengthening Communities.",url:"/",type:"website" as const,siteName:"Uplift Nigeria Foundation"}};
 export const revalidate=60;
-export default async function Home(){const s=await getSettings();
- const stats=await safe(()=>db.impactStat.findMany({where:{verified:true,published:true},orderBy:{sortOrder:"asc"}}),[]);
- const news=await safe(()=>db.article.findMany({where:{published:true,publishedAt:{lte:new Date()}},orderBy:{publishedAt:"desc"},take:3,include:{category:true,image:true}}),[]);
+
+export default async function Home(){
+ const s=await getSettings();
+ const stats=await safe(()=>db.impactStat.findMany({where:{published:true},orderBy:{sortOrder:"asc"}}),[]);
+ const news=await safe(()=>db.article.findMany({where:{published:true},orderBy:{createdAt:"desc"},take:3,include:{category:true,image:true}}),[]);
+
  return <>
  <section className="dark-sec relative isolate overflow-hidden text-white"><Photo name="hero" alt="" priority className="absolute inset-0 -z-20 h-full w-full"/><div className="absolute inset-0 -z-10 bg-[#0b2e22]/75"/>
   <div className="wrap max-w-3xl py-24 md:py-40"><p className="tag">Nigerian charitable foundation</p><h1 className="mt-3 text-white">Uplifting Lives. Strengthening Communities.</h1>
