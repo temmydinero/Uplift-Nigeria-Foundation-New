@@ -1,4 +1,3 @@
-import MediaImage from "@/components/MediaImage";
 import { notFound } from "next/navigation";
 import { db, safe } from "@/lib/db";
 import { meta } from "@/lib/meta";
@@ -9,14 +8,14 @@ const get = (slug: string) =>
   safe(() => db.article.findFirst({
     where: { 
       slug, 
-      published: true
+      published: true 
     }
   }), null);
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const a = await get(params.slug);
   if (!a) return {};
-  const m = meta(a.seoTitle || a.title, a.seoDescription || a.excerpt, "/news/" + a.slug);
+  const m = meta(a.title, a.content ? a.content.substring(0, 150) : "", "/news/" + a.slug);
   return m;
 }
 
@@ -42,7 +41,7 @@ export default async function Post({ params }: { params: { slug: string } }) {
           News · {articleDate.toLocaleDateString("en-NG", { dateStyle: "long" })}
         </p>
         <h1 className="my-3 !text-4xl">{a.title}</h1>
-        {a.body.split(/\n{2,}/).map((p, i) => <p key={i} className="my-4 leading-8">{p}</p>)}
+        {a.content && a.content.split(/\n{2,}/).map((p: string, i: number) => <p key={i} className="my-4 leading-8">{p}</p>)}
       </div>
     </article>
   );
