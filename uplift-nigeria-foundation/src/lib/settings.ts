@@ -1,3 +1,3 @@
 import { db, safe } from "./db";
 export const DEFAULTS:Record<string,string>={foundation_name:"Uplift Nigeria Foundation",tagline:"Uplifting Lives. Strengthening Communities.",email:"uplift9jafoundation1@gmail.com",phone:"07074032915",address:"09 Folu Adegun, Iyana Ipaja, Lagos",instagram:"https://instagram.com/uplift9ja",tiktok:"https://tiktok.com/@uplift9ja",facebook:"",x:"",linkedin:"",youtube:"",map_embed_url:"",show_support_section:"false",support_text:"",footer_text:"A Nigerian charitable foundation focused on people and communities."};
-export const getSettings=()=>safe(async()=>{const rows=await db.siteSetting.findMany();return{...DEFAULTS,...Object.fromEntries(rows.map(r=>[r.key,r.value]))}},DEFAULTS);
+export const getSettings=()=>safe(async()=>{const rows=await (db as any).siteSetting.findMany();return{...DEFAULTS,...Object.fromEntries(rows.map(r=>[r.key,r.value]))}},DEFAULTS);
