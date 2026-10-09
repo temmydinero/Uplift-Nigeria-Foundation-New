@@ -18,6 +18,6 @@ async function handle<T extends z.ZodTypeAny>(bucket:string,schema:T,fd:FormData
   if(!p.success)return{error:"Please check the form: "+p.error.issues[0].path.join(".")+" is invalid or missing."};
   try{if(dupe&&await dupe(p.data))return{ok:true};await save(p.data);return{ok:true}}catch{return{error:"Something went wrong. Please try again later."}}
 }
-export async function submitVolunteer(_:R,fd:FormData){return handle("vol",S.volunteer,fd,d=>db.volunteer.create({data:d}),d=>db.volunteer.findFirst({where:{email:d.email,interest:d.interest,message:d.message??null,createdAt:{gt:recent()}}}))}
-export async function submitPartner(_:R,fd:FormData){return handle("par",S.partner,fd,d=>db.partnershipRequest.create({data:d}),d=>db.partnershipRequest.findFirst({where:{email:d.email,organization:d.organization,message:d.message??null,createdAt:{gt:recent()}}}))}
-export async function submitContact(_:R,fd:FormData){return handle("con",S.contact,fd,d=>db.contactMessage.create({data:d}),d=>db.contactMessage.findFirst({where:{email:d.email,subject:d.subject,message:d.message,createdAt:{gt:recent()}}}))}
+export async function submitVolunteer(_:R,fd:FormData){return handle("vol",S.volunteer,fd,d=>(db.volunteer as any).create({data:d}),d=>(db.volunteer as any).findFirst({where:{email:d.email,interest:d.interest,message:d.message??null,createdAt:{gt:recent()}}}))}
+export async function submitPartner(_:R,fd:FormData){return handle("par",S.partner,fd,d=>(db.partnershipRequest as any).create({data:d}),d=>(db.partnershipRequest as any).findFirst({where:{email:d.email,organization:d.organization,message:d.message??null,createdAt:{gt:recent()}}}))}
+export async function submitContact(_:R,fd:FormData){return handle("con",S.contact,fd,d=>(db.contactMessage as any).create({data:d}),d=>(db.contactMessage as any).findFirst({where:{email:d.email,subject:d.subject,message:d.message,createdAt:{gt:recent()}}}))}
