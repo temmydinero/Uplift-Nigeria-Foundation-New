@@ -11,7 +11,7 @@ export const revalidate=60;
 
 export default async function Home(){
  const s=await getSettings();
- const stats=await safe(()=>db.impactStat.findMany({where:{published:true},orderBy:{sortOrder:"asc"}}),[]);
+ const stats=await safe(()=>db.impactStat.findMany({orderBy:{sortOrder:"asc"}}),[]);
  const news=await safe(()=>db.article.findMany({where:{published:true},orderBy:{createdAt:"desc"},take:3,include:{category:true,image:true}}),[]);
 
  return <>
