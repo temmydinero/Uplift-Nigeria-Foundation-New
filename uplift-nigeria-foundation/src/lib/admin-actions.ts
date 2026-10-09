@@ -50,7 +50,7 @@ const T=(n:number)=>z.string().trim().max(n);const U=z.string().trim().max(300).
 const SET=z.object({foundation_name:T(100).min(2),tagline:T(150),email:z.string().trim().max(200).refine(v=>v===""||/^\S+@\S+\.\S+$/.test(v)),phone:T(40),address:T(250),instagram:U,facebook:U,x:U,linkedin:U,youtube:U,tiktok:U,map_embed_url:U,footer_text:T(300),support_text:T(500)});
 export async function saveSettings(fd:FormData){await requireAdmin();const r=SET.safeParse(Object.fromEntries(fd));if(!r.success)redirect("/admin/settings?error=1");
  const all:Record<string,string>={...r.data,show_support_section:fd.get("show_support_section")==="true"?"true":"false"};
- for(const key of Object.keys(DEFAULTS))if(key in all)await db.siteSetting.upsert({where:{key},update:{value:all[key]},create:{key,value:all[key]}});
+ for(const key of Object.keys(DEFAULTS))if(key in all)await (db as any).siteSetting.upsert({where:{key},update:{value:all[key]},create:{key,value:all[key]}} as any);
  revalidatePath("/","layout");redirect("/admin/settings?saved=1")}
 // ---- Users (ADMIN only)
 const PW=z.string().min(12).max(100).regex(/[a-z]/).regex(/[A-Z]/).regex(/\d/);const ROLE=z.enum(["ADMIN","EDITOR"]);
