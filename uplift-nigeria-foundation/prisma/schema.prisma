@@ -7,9 +7,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role { ADMIN EDITOR }
-enum SubmissionStatus { NEW CONTACTED APPROVED DECLINED ARCHIVED }
-enum MessageStatus { UNREAD READ ARCHIVED }
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+}
+
+enum SubmissionStatus {
+  NEW
+  CONTACTED
+  APPROVED
+  DECLINED
+}
+
+enum MessageStatus {
+  UNREAD
+  READ
+  ARCHIVED
+}
+
 
 model AdminUser {
   id           String   @id @default(cuid())
