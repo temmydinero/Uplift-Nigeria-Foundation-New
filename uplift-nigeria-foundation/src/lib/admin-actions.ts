@@ -50,4 +50,18 @@ const T=(n:number)=>z.string().trim().max(n);const U=z.string().trim().max(300).
 const SET=z.object({foundation_name:T(100).min(2),tagline:T(150),email:z.string().trim().max(200).refine(v=>v===""||/^\S+@\S+\.\S+$/.test(v)),phone:T(40),address:T(250),instagram:U,facebook:U,x:U,linkedin:U,youtube:U,tiktok:U,map_embed_url:U,footer_text:T(300),support_text:T(500)});
 export async function saveSettings(fd:FormData){await requireAdmin();const r=SET.safeParse(Object.fromEntries(fd));if(!r.success)redirect("/admin/settings?error=1");
  const all:Record<string,string>={...r.data,show_support_section:fd.get("show_support_section")==="true"?"true":"false"};
- for(const key of Object.keys(DEFAULTS))if(key in all)await db.
+ for(const key of Object.keys(DEFAULTS))if(key in all)await db.siteSetting.upsert({where:{key},update:{value:all[key]},create:{key,value:all[key]}});
+ revalidatePath("/","layout");redirect("/admin/settings?saved=1")}
+// ---- Users (ADMIN only)
+const PW=z.string().min(12).max(100).regex(/[a-z]/).regex(/[A-Z]/).regex(/\d/);const ROLE=z.enum(["ADMIN","EDITOR"]);
+async function lastAdmin(id:string){return (await db.adminUser.count({where:{role:"ADMIN",active:true,id:{not:id}}}))===0}
+export async function createUser(fd:FormData){await requireAdmin();const r=z.object({email:z.string().trim().toLowerCase().email().max(200),name:z.string().trim().min(2).max(80),role:ROLE,password:PW}).safeParse(Object.fromEntries(fd));
+ if(!r.success)redirect("/admin/users?error=invalid");if(await db.adminUser.findUnique({where:{email:r.data.email}}))redirect("/admin/users?error=exists");
+ await db.adminUser.create({data:{email:r.data.email,name:r.data.name,role:r.data.role,passwordHash:await bcrypt.hash(r.data.password,12)}});redirect("/admin/users?ok=1")}
+export async function setRole(fd:FormData){const me=await requireAdmin();const id=String(fd.get("id"));const role=ROLE.parse(fd.get("role"));
+ if(role!=="ADMIN"&&(id===me.id||await lastAdmin(id)))redirect("/admin/users?error=last");await db.adminUser.update({where:{id},data:{role}});redirect("/admin/users?ok=1")}
+export async function setActive(fd:FormData){const me=await requireAdmin();const id=String(fd.get("id"));const active=fd.get("active")==="true";
+ if(!active&&(id===me.id||await lastAdmin(id)))redirect("/admin/users?error=last");await db.adminUser.update({where:{id},data:{active}});redirect("/admin/users?ok=1")}
+export async function resetPassword(fd:FormData){await requireAdmin();const p=PW.safeParse(fd.get("password"));if(!p.success)redirect("/admin/users?error=invalid");
+ await db.adminUser.update({where:{id:String(fd.get("id"))},data:{passwordHash:await bcrypt.hash(p.data,12)}});redirect("/admin/users?ok=1")}
+export async function deleteUser(fd:FormData){const me=await requireAdmin();const id=String(fd.get("id"));if(id===me.id||await lastAdmin(id))redirect("/admin/users?error=last");await db.adminUser.delete({where:{id}});redirect("/admin/users?ok=1")}
