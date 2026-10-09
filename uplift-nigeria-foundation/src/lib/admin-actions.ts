@@ -31,7 +31,7 @@ export async function uploadMedia(fd:FormData){await requireEditor();const f=fd.
  await db.media.create({data:{url:s.url,storageKey:s.key,mimeType:s.mime,sizeBytes:s.size,alt} as any});revalidatePath("/admin/media");redirect("/admin/media?ok=1")}
 export async function updateAlt(fd:FormData){await requireEditor();const alt=String(fd.get("alt")||"").trim();if(alt.length<3||alt.length>200)redirect("/admin/media?error=alt");
  await db.media.update({where:{id:String(fd.get("id"))},data:{alt} as any});revalidatePath("/","layout");redirect("/admin/media?ok=1")}
-export async function deleteMedia(fd:FormData){await requireEditor();const m=await db.media.delete({where:{id:String(fd.get("id"))}});await removeStored(m.storageKey);revalidatePath("/","layout");redirect("/admin/media")}
+export async function deleteMedia(fd:FormData){await requireEditor();const m=(await db.media.delete({where:{id:String(fd.get("id"))}})) as any;await removeStored(m.storageKey);revalidatePath("/","layout");redirect("/admin/media")}
 // ---- Impact
 export async function addStat(fd:FormData){await requireEditor();const l=String(fd.get("label")||"").trim().slice(0,80);if(l.length<2)redirect("/admin/impact?error=1");
  await db.impactStat.create({data:{label:l,value:0,verified:false,published:false,sortOrder:99}});redirect("/admin/impact?saved=1")}
