@@ -10,22 +10,20 @@ const get = (slug: string) =>
     where: { 
       slug, 
       published: true
-    }, 
-    include: { image: true, category: true }
+    }
   }), null);
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const a = await get(params.slug);
   if (!a) return {};
   const m = meta(a.seoTitle || a.title, a.seoDescription || a.excerpt, "/news/" + a.slug);
-  return a.image ? { ...m, openGraph: { ...m.openGraph, type: "article" as const, images: [{ url: a.image.url, alt: a.image.alt }] } } : m;
+  return m;
 }
 
 export default async function Post({ params }: { params: { slug: string } }) {
   const a = await get(params.slug);
   if (!a) notFound();
 
-  // Fallback to createdAt if your schema doesn't have a separate date field for publishing time
   const articleDate = a.createdAt ?? new Date();
 
   const ld = {
@@ -41,10 +39,9 @@ export default async function Post({ params }: { params: { slug: string } }) {
       <div className="wrap max-w-3xl">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, "\\u003c") }} />
         <p className="tag">
-          {a.category?.name || "News"} · {articleDate.toLocaleDateString("en-NG", { dateStyle: "long" })}
+          News · {articleDate.toLocaleDateString("en-NG", { dateStyle: "long" })}
         </p>
         <h1 className="my-3 !text-4xl">{a.title}</h1>
-        {a.image && <MediaImage src={a.image.url} alt={a.image.alt} className="my-6 w-full rounded-2xl" />}
         {a.body.split(/\n{2,}/).map((p, i) => <p key={i} className="my-4 leading-8">{p}</p>)}
       </div>
     </article>
