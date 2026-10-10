@@ -5,13 +5,14 @@ import { Fraunces, Inter } from "next/font/google";
 const serif = Fraunces({ subsets: ["latin"], variable: "--font-serif", display: "swap" });
 const sans = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 
+// Bulletproof URL helper that ignores empty/whitespace-only environment variables
 const getSiteUrl = () => {
-  const url = process.env.NEXT_PUBLIC_SITE_URL;
-  if (url && url.trim() !== "") {
+  const envUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (envUrl && typeof envUrl === "string" && envUrl.trim() !== "") {
     try {
-      return new URL(url);
+      return new URL(envUrl.trim());
     } catch {
-      // fallback if malformed
+      // Fallback if the URL string is malformed
     }
   }
   return new URL("http://localhost:3000");
